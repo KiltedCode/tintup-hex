@@ -1,0 +1,71 @@
+.tu-hex-wall-wrapper {
+    height:100%;
+    overflow: hidden;
+    width: 100%;
+}
+.tu-hex-wall {
+    background-color: #383838;
+    height: calc(100% + 400px);
+    margin-top: -110px;
+    width: calc(100% + 400px);
+}
+
+.tu-hex-row {
+    white-space: nowrap;
+}
+.tu-hex {
+    display: inline-block;
+    overflow: hidden;
+    visibility: hidden;
+    -webkit-transform: rotate(120deg);
+       -moz-transform: rotate(120deg);
+        -ms-transform: rotate(120deg);
+         -o-transform: rotate(120deg);
+            transform: rotate(120deg);
+    cursor: pointer;
+}
+
+.tu-hex-in1 {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    -webkit-transform: rotate(-60deg);
+       -moz-transform: rotate(-60deg);
+        -ms-transform: rotate(-60deg);
+         -o-transform: rotate(-60deg);
+            transform: rotate(-60deg);
+}
+
+.tu-hex-in2 {
+    width: 100%;
+    height: 100%;
+    background-color: #929293;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    visibility: visible;
+    -webkit-transform: rotate(-60deg);
+       -moz-transform: rotate(-60deg);
+        -ms-transform: rotate(-60deg);
+         -o-transform: rotate(-60deg);
+            transform: rotate(-60deg);
+}
+
+.tu-hex-in2:hover {
+    background-image: url(http://thebestrunningshoes.info/wp-content/uploads/2015/07/Top-5-Best-Running-Shoes-for-Women-in-2015.jpg); /*temp picture*/
+}
+
+.tu-hex--side {
+    width: 400px;
+    height: 200px;
+    margin: 5px 0 0 -223px;
+}
+.tu-hex--side:nth-child(even) {
+    margin-bottom: -105px;
+}
+
+.tu-hex--point {
+    width: 200px;
+    height: 400px;
+    margin: -80px 0 0 20px;
+}

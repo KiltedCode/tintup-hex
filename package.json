@@ -5,10 +5,10 @@
     "private": true,
     "scripts": {
         "build": "webpack --config webpack.config.js",
-        "build-ex": "webpack --config webpack.config.js && cp example/indez.html dist/index.html"
+        "build-ex": "webpack --config webpack.config.js && cp example/index.html dist/index.html"
     },
-    "dependencies": {},
     "devDependencies": {
+        "copy-webpack-plugin": "^4.0.1",
         "ts-loader": "^2.3.2",
         "typescript": "^2.4.2",
         "webpack": "^3.5.2"

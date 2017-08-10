@@ -1,5 +1,6 @@
-var path = require('path');
-var webpack = require('webpack');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+// var path = require('path');
+// var webpack = require('webpack');
 
 module.exports = {
     entry: './src/main.ts',
@@ -16,5 +17,14 @@ module.exports = {
                 loader: 'ts-loader'
              }
         ]
-    }
+    },
+    plugins: [
+        new CopyWebpackPlugin([
+            { 
+                context: 'src/assets',
+                from: '**/*', 
+                to: 'dist/assets' 
+            }
+        ])
+    ]
 }
