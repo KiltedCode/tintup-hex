@@ -11,6 +11,7 @@
 }
 
 .tu-hex-row {
+    padding-left: 20px;
     white-space: nowrap;
 }
 .tu-hex {
@@ -58,7 +59,7 @@
 .tu-hex--side {
     width: 400px;
     height: 200px;
-    margin: 5px 0 0 -223px;
+    margin: 9px 3px 0px -223px;
 }
 .tu-hex--side:nth-child(even) {
     margin-bottom: -105px;
