@@ -7,5 +7,11 @@
       <div class="tu-hex-wall-wrapper">
       </div>
       <script src="tintup-hex.bundle.js"></script>
+      <script>
+        let hexWall = new HexGenerator.HexWall();
+        // Update congifuration values
+        hexWall.configureFeed('API-KEY-GOES-HERE', 'FEED-NAME');
+        hexWall.initHexWall();
+      </script>
     </body>
   </html>
