@@ -63,7 +63,8 @@ export class HexWall {
     private hexagons: number;
     private randomArray: number[];
     private rows: number;
-    private showIndex: number;
+    private showHexIndex: number;
+    private showImageIndex: number;
     private wrapper: any;
 
     /**
@@ -143,24 +144,8 @@ export class HexWall {
         $('#hex-'+num+'-in').addClass('hex-fade-in');
     }
 
-    fadeOut(num: number): void {
-        $('#hex-'+num+'-in').removeClass('hex-fade-in');
-    }
-
-    fadeOutSlow(num: number): void {
-        $('#hex-'+num+'-in').removeClass('hex-fade-in--slow');
-    }
-
-    addImage(num: number, index: number): void {
-        console.log(num +', '+index);
-        let hexEle = $('#hex-'+num+'-in');
-        hexEle.addClass('fade-out-in');
-        let feedEle: FeedItem = this.feedData[index];
-        hexEle.css('background-image', `url(${feedEle.image})`);
-    }
-
     step1(num: number, index: number): void {
-        this.fadeOut(num);
+        $('#hex-'+num+'-in').removeClass('hex-fade-in');
         window.setTimeout(this.step2.bind(this), 800, num, index);
     }
 
@@ -171,12 +156,12 @@ export class HexWall {
         }
         let feedEle: FeedItem = this.feedData[index];
         hexEle.css('background-image', `url(${feedEle.image})`);
-        hexEle.addClass('hex-fade-in--slow');
+        hexEle.addClass('hex-fade-in--slow clickable');
         window.setTimeout(this.step3.bind(this), 15000, num, index);
     }
 
     step3(num: number, index: number): void {
-        this.fadeOutSlow(num);
+        $('#hex-'+num+'-in').removeClass('hex-fade-in--slow clickable');
         window.setTimeout(this.step4.bind(this), 800, num, index);
     }
 
@@ -188,14 +173,16 @@ export class HexWall {
     }
 
     cycle(): void {
-        this.step1(this.randomArray[this.showIndex], this.showIndex);
+        this.step1(this.randomArray[this.showHexIndex], this.showImageIndex);
         // window.setTimeout(this.step1.bind(this), 2000 * this.showIndex, this.randomArray[this.showIndex], this.showIndex);
-        this.showIndex = (this.showIndex + 1) % (this.hexagons * this.rows);
-        console.log(this.showIndex);
+        this.showHexIndex = (this.showHexIndex + 1) % (this.hexagons * this.rows);
+        this.showImageIndex = (this.showImageIndex + 1) % this.feedData.length;
+        console.log(this.showHexIndex + ' - ' + this.showImageIndex);
     }
 
     startImages(): void {
-        this.showIndex = 0;
+        this.showHexIndex = 0;
+        this.showImageIndex = 0;
         this.randomArray.sort(function() { return 0.5 - Math.random(); });
 
         let hexCount = this.hexagons * this.rows;
@@ -203,9 +190,10 @@ export class HexWall {
         let active = Math.ceil(hexCount * .2);
         console.log('active', active);
         let i = 0;
-        while(this.showIndex < active) {
-            window.setTimeout(this.step1.bind(this), 2000 * this.showIndex, this.randomArray[this.showIndex], this.showIndex);
-            this.showIndex++;
+        while(this.showHexIndex < active) {
+            window.setTimeout(this.step1.bind(this), 2000 * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex);
+            this.showHexIndex++;
+            this.showImageIndex++;
         }
     }
 
