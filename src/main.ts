@@ -60,6 +60,7 @@ export class HexWall {
     private apiKey: string;
     private feedName: string;
     private feedData: FeedItem[];
+    private fillAmount: number = .2;
     private hexagons: number;
     private randomArray: number[];
     private rows: number;
@@ -110,6 +111,17 @@ export class HexWall {
     }
 
     /**
+     * Function to cycle through images.
+     * Starts steps to show image, updates indicies.
+     */
+    cycle(): void {
+        this.step1(this.randomArray[this.showHexIndex], this.showImageIndex);
+        this.showHexIndex = (this.showHexIndex + 1) % (this.hexagons * this.rows);
+        this.showImageIndex = (this.showImageIndex + 1) % this.feedData.length;
+        console.log(this.showHexIndex + ' - ' + this.showImageIndex);
+    }
+
+    /**
      * Creates hexagon wall.
      * Adds rows and divs based on calculations.
      */
@@ -140,63 +152,19 @@ export class HexWall {
         });
     }
 
+    /**
+     * Helper function to fade in hexagon.
+     * Adds the hex-fade-in class.
+     * @param num number of hexagon used to select from dom.
+     */
     fadeIn(num: number): void {
         $('#hex-'+num+'-in').addClass('hex-fade-in');
     }
 
-    step1(num: number, index: number): void {
-        $('#hex-'+num+'-in').removeClass('hex-fade-in');
-        window.setTimeout(this.step2.bind(this), 800, num, index);
-    }
-
-    step2(num: number, index: number): void {
-        let hexEle = $('#hex-'+num+'-in');
-        if(index > this.feedData.length) {
-            index = index % this.feedData.length;
-        }
-        let feedEle: FeedItem = this.feedData[index];
-        hexEle.css('background-image', `url(${feedEle.image})`);
-        hexEle.addClass('hex-fade-in--slow clickable');
-        window.setTimeout(this.step3.bind(this), 15000, num, index);
-    }
-
-    step3(num: number, index: number): void {
-        $('#hex-'+num+'-in').removeClass('hex-fade-in--slow clickable');
-        window.setTimeout(this.step4.bind(this), 800, num, index);
-    }
-
-    step4(num: number, index: number): void {
-        let hexEle = $('#hex-'+num+'-in');
-        hexEle.css('background-image', '');
-        hexEle.addClass('hex-fade-in');
-        window.setTimeout(this.cycle.bind(this), 800);
-    }
-
-    cycle(): void {
-        this.step1(this.randomArray[this.showHexIndex], this.showImageIndex);
-        // window.setTimeout(this.step1.bind(this), 2000 * this.showIndex, this.randomArray[this.showIndex], this.showIndex);
-        this.showHexIndex = (this.showHexIndex + 1) % (this.hexagons * this.rows);
-        this.showImageIndex = (this.showImageIndex + 1) % this.feedData.length;
-        console.log(this.showHexIndex + ' - ' + this.showImageIndex);
-    }
-
-    startImages(): void {
-        this.showHexIndex = 0;
-        this.showImageIndex = 0;
-        this.randomArray.sort(function() { return 0.5 - Math.random(); });
-
-        let hexCount = this.hexagons * this.rows;
-        let feedCount = this.feedData.length;
-        let active = Math.ceil(hexCount * .2);
-        console.log('active', active);
-        let i = 0;
-        while(this.showHexIndex < active) {
-            window.setTimeout(this.step1.bind(this), 2000 * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex);
-            this.showHexIndex++;
-            this.showImageIndex++;
-        }
-    }
-
+    /**
+     * Gets feed data from TINTUP API.
+     * Requires api key and feed name to be set.
+     */
     getFeed(): void {
         if(this.apiKey && this.feedName) {
             let url = `https://api.tintup.com/v1/feed/${this.feedName}?api_token=${this.apiKey}&count=30&select=image_only`;
@@ -223,5 +191,84 @@ export class HexWall {
         } else {
             // TODO: error message
         }
+    }
+
+    /**
+     * Shows initial images.
+     * Will fill percentage of hexagon based on fillAmount variable.
+     * Sets timeout for step 1 for all hexagons.
+     */
+    startImages(): void {
+        this.showHexIndex = 0;
+        this.showImageIndex = 0;
+        this.randomArray.sort(function() { return 0.5 - Math.random(); });
+
+        let hexCount = this.hexagons * this.rows;
+        let feedCount = this.feedData.length;
+        let active = Math.ceil(hexCount * this.fillAmount);
+        let i = 0;
+        while(this.showHexIndex < active) {
+            window.setTimeout(this.step1.bind(this), 2000 * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex);
+            this.showHexIndex++;
+            this.showImageIndex++;
+        }
+    }
+
+    /**
+     * Step 1 for image cycle.
+     * Fades out hexagon.
+     * Sets timeout for step 2.
+     * @param num number of hexagon used to select from dom.
+     * @param index index for image.
+     */
+    step1(num: number, index: number): void {
+        $('#hex-'+num+'-in').removeClass('hex-fade-in');
+        window.setTimeout(this.step2.bind(this), 800, num, index);
+    }
+
+    /**
+     * Step 2 for image cycle.
+     * Selects image from feed and adds to background.
+     * Fades in hexagon slowly.
+     * Sets timeout for step 3.
+     * @param num number of hexagon used to select from dom.
+     * @param index index for image.
+     */
+    step2(num: number, index: number): void {
+        let hexEle = $('#hex-'+num+'-in');
+        if(index > this.feedData.length) {
+            index = index % this.feedData.length;
+        }
+        let feedEle: FeedItem = this.feedData[index];
+        hexEle.css('background-image', `url(${feedEle.image})`);
+        hexEle.addClass('hex-fade-in--slow clickable');
+        window.setTimeout(this.step3.bind(this), 15000, num, index);
+    }
+
+    /**
+     * Step 3 for image cycle.
+     * Fades out hexagon.
+     * Sets timeout for step 4.
+     * @param num number of hexagon used to select from dom.
+     * @param index index for image.
+     */
+    step3(num: number, index: number): void {
+        $('#hex-'+num+'-in').removeClass('hex-fade-in--slow clickable');
+        window.setTimeout(this.step4.bind(this), 800, num, index);
+    }
+
+    /**
+     * Step 4 for image cycle.
+     * Removes image from background.
+     * Fades in hexagon.
+     * Sets timeout to start cycle for new image.
+     * @param num number of hexagon used to select from dom.
+     * @param index index for image.
+     */
+    step4(num: number, index: number): void {
+        let hexEle = $('#hex-'+num+'-in');
+        hexEle.css('background-image', '');
+        hexEle.addClass('hex-fade-in');
+        window.setTimeout(this.cycle.bind(this), 800);
     }
 }
