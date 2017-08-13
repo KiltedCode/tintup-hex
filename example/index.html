@@ -8,9 +8,11 @@
       </div>
       <script src="tintup-hex.bundle.js"></script>
       <script>
-        let hexWall = new HexGenerator.HexWall();
         // Update congifuration values
-        hexWall.configureFeed('API-KEY-GOES-HERE', 'FEED-NAME');
+        var hexWall = new HexGenerator.HexWall({
+          apiKey: 'API-KEY-GOES-HERE', 
+          feedName: 'FEED-NAME'
+        });
         hexWall.initHexWall();
       </script>
     </body>
