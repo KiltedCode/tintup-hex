@@ -1,60 +1,6 @@
 import * as $ from 'jquery';
-
-declare interface FeedItem {
-    "url": string;
-    "source": number;
-    "created": number;
-    "user_id": number;
-    "visible": number;
-    "comments": string;
-    "social_feed_id": number;
-    "social_post_id": string;
-    "social_id": string;
-    "phash": any;
-    "height": number;
-    "width": number;
-    "original_image": string;
-    "author": string;
-    "embed": string;
-    "image": string;
-    "title": string;
-    "timestamp": number;
-    "original_timestamp": number;
-    "tweet_post_id": string;
-    "post_id": string;
-    "user_rights": {},
-    "nsfw_score": any;
-    "language": "en",
-    "likes_count": any;
-    "shares_count": any;
-    "replies_count": any;
-    "description": any;
-    "cta": string;
-    "highlight": boolean
-    "pinned": boolean
-    "recur_frequency": string;
-    "recur_offset": string;
-    "geo": {
-        "city": string;
-        "region": string;
-        "country": string;
-        "country_code": string;
-        "latitude": string;
-        "longitude": string;
-        "lat": string;
-        "lng": string;
-        "geo_enabled": false
-    },
-    "tags": string[],
-    "popup_function": string;
-    "tweet_urls": string[],
-    "retweeted_by": string;
-    "custom_field": any,
-    "offset": number;
-    "ref_timestamp": number;
-    "unique_offset": number;
-    "relative_offset": number;
-}
+import { FeedItem } from './ts/feed-item.model';
+import { HexConfig } from './ts/hex-config.model';
 
 export class HexWall {
     private apiKey: string;
@@ -69,13 +15,21 @@ export class HexWall {
     private wrapper: any;
 
     /**
+     * Constructor for HexWall.
+     * @param config configuration object for settings.
+     */
+    constructor(config: HexConfig) {
+        this.apiKey = config.apiKey;
+        this.feedName = config.feedName;
+    }
+
+    /**
      * Initialized hexagon wall.
      */
     initHexWall() : void {
         this.calcHexagons();
         this.drawHexagons();
         window.setTimeout(this.getFeed.bind(this), 4000);
-        // this.getFeed();
     }
 
     /**
@@ -98,16 +52,6 @@ export class HexWall {
 
         /* calculate # rows needed */
         this.rows = Math.round(height / (200 * .75) );
-    }
-
-     /**
-     * Sets API key for TINTUP.
-     * @param apiKey the api key for authentication
-     * @param feedName the name of feed for lookups
-     */
-    configureFeed(apiKey: string, feedName: string): void {
-        this.apiKey = apiKey;
-        this.feedName = feedName;
     }
 
     /**
@@ -133,7 +77,7 @@ export class HexWall {
         for(let r = 0; r < this.rows; r++) {
             let row = '<div class="tu-hex-row">';
             for(let h = 0; h < this.hexagons; h++) {
-                row += `<div id="hex-${hex}" class="tu-hex tu-hex--side"><div class="tu-hex-in1"><div id="hex-${hex}-in" class="tu-hex-in2"></div></div></div>`;
+                row += `<div id="hex-${hex}" class="tu-hex tu-hex--side"><div class="tu-hex-in1"><div id="hex-${hex}-in" class="tu-hex-in2"><div class="hex-name"></div></div></div></div>`;
                 hex++;
             }
             row += '</div>';
@@ -236,11 +180,18 @@ export class HexWall {
      */
     step2(num: number, index: number): void {
         let hexEle = $('#hex-'+num+'-in');
-        if(index > this.feedData.length) {
-            index = index % this.feedData.length;
-        }
+        let nameEle = $('#hex-'+num+'-in .hex-name');
         let feedEle: FeedItem = this.feedData[index];
+        let author: any = JSON.parse(feedEle.author);
         hexEle.css('background-image', `url(${feedEle.image})`);
+        if(author) {
+            if(author.username) {
+                nameEle.text(`@${author.username}`);
+            } else if(author.name) {
+                nameEle.text(author.name);
+            }
+            
+        }
         hexEle.addClass('hex-fade-in--slow clickable');
         window.setTimeout(this.step3.bind(this), 15000, num, index);
     }
@@ -267,8 +218,10 @@ export class HexWall {
      */
     step4(num: number, index: number): void {
         let hexEle = $('#hex-'+num+'-in');
+        let nameEle = $('#hex-'+num+'-in .hex-name');
         hexEle.css('background-image', '');
         hexEle.addClass('hex-fade-in');
+        nameEle.text('');
         window.setTimeout(this.cycle.bind(this), 800);
     }
 }

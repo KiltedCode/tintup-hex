@@ -44,6 +44,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     opacity: 0;
+    position: relative;
     visibility: visible;
     -webkit-transform: rotate(-60deg);
        -moz-transform: rotate(-60deg);
@@ -73,8 +74,20 @@
          transition: opacity 1.25s ease;
 }
 
-.tu-hex-in2:hover {
-    
+.hex-name {
+    color: white;
+    display: none;
+    font-family: Lato, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    position: absolute;
+    text-shadow: 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 7px #FFF, 0 0 7px #FFF, 0 0 7px #FFF, 0 0 7px #FFF;
+    top: 67%;
+    width: 100%;
+}
+
+.tu-hex-in2:hover .hex-name {
+    display: block;
 }
 
 .tu-hex--side {
