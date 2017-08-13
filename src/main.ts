@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+
 import { FeedItem } from './ts/feed-item.model';
 import { HexConfig } from './ts/hex-config.model';
 
@@ -9,6 +10,8 @@ export class HexWall {
     private feedData: FeedItem[];
     private fillAmount: number = .2;
     private hexagons: number;
+    private morePages: boolean;
+    private pageUrl: string;
     private primaryColor: string;
     private randomArray: number[];
     private rows: number;
@@ -23,11 +26,17 @@ export class HexWall {
      * @param config configuration object for settings.
      */
     constructor(config: HexConfig) {
+        /* set values from config, with defaults */
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
         this.primaryColor = config.primaryColor || '#AA4839';
         this.secondaryColor = config.secondaryColor || '#AA7239';
         this.tertiaryColor = config.tertiaryColor || '#8F305B';
+
+        /* set nonconfigurable base values */
+        this.morePages = false;
+        this.pageUrl = '';
+
         /* sets up colors for hexagons
             constructs so primary has highest probability */
         this.colors = [
@@ -101,7 +110,10 @@ export class HexWall {
         this.step1(this.randomArray[this.showHexIndex], this.showImageIndex);
         this.showHexIndex = (this.showHexIndex + 1) % (this.hexagons * this.rows);
         this.showImageIndex = (this.showImageIndex + 1) % this.feedData.length;
-        console.log(this.showHexIndex + ' - ' + this.showImageIndex);
+        /* if nearing feed size, get another page */
+        if(this.morePages && (this.feedData.length - this.showImageIndex < 5)) {
+            this.getFeedPage();
+        }
     }
 
     /**
@@ -112,7 +124,7 @@ export class HexWall {
         this.wrapper.empty();
         let hex = 0;
         let hexCount = this.hexagons * this.rows;
-        let wall = '<div class="tu-hex-wall">';
+        let wall = '<div class="tu-hex-wall"><div class="tu-hex-feature--wrapper"><div class="tu-hex-feature--content"><div class="tu-hex-feature--close">x</div><img class="tu-hex-feature-img" /><div class="tu-hex-feature--desc"></div></div></div>';
         for(let r = 0; r < this.rows; r++) {
             let row = '<div class="tu-hex-row">';
             for(let h = 0; h < this.hexagons; h++) {
@@ -125,6 +137,7 @@ export class HexWall {
         }
         wall += '</div>';
         this.wrapper.append(wall);
+        $('.tu-hex-feature--close').click(function(){ $('.tu-hex-feature--wrapper').css('display', 'none'); });
         this.randomArray = [];
         this.randomArray.length = hexCount;
         for(let i = 0; i < hexCount; i++) {
@@ -144,6 +157,18 @@ export class HexWall {
     fadeIn(num: number): void {
         $('#hex-'+num+'-in').addClass('hex-fade-in');
     }
+    
+    /**
+     * Used to show featured post.
+     * @param event object containing feed index and reference to this.
+     */
+    featureHex(event: any): void {
+        let featureEle = $('.tu-hex-feature--wrapper');
+        let feedEle: FeedItem = event.data.that.feedData[event.data.feedEle];
+        let imgEle = featureEle.find('img').attr('src', feedEle.original_image).attr('alt', 'Social Image');
+        featureEle.find('.tu-hex-feature--desc').text(feedEle.title);
+        featureEle.css('display', 'flex');
+    }
 
     /**
      * Gets feed data from TINTUP API.
@@ -160,12 +185,17 @@ export class HexWall {
                     if(response.error) {
                         console.log(response.error);
                     } else {
+                        console.log('response', response);
                         this.feedData = response.data;
-                        let hexCount = this.hexagons * this.rows;
-                        let feedCount = this.feedData.length;
+                        this.morePages = response.has_next_page;
+                        this.pageUrl = response.next_page;
                         this.startImages();
 
-                        // TODO: Next page logic
+                        let hexCount = this.hexagons * this.rows;
+                        let feedCount = this.feedData.length;
+                        if(this.morePages && feedCount < hexCount) {
+                            this.getFeedPage();
+                        }
                     }
                 },
                 error: function(error) {
@@ -178,13 +208,30 @@ export class HexWall {
         }
     }
 
-    /**
-     * Initialized hexagon wall.
-     */
-    initHexWall() : void {
-        this.calcHexagons();
-        this.drawHexagons();
-        window.setTimeout(this.getFeed.bind(this), 4000);
+    getFeedPage(): void {
+        $.ajax({
+            url: this.pageUrl,
+            jsonp: 'callback',
+            dataType: 'jsonp',
+            success: (response) => {
+                if(response.error) {
+                    console.log(response.error);
+                } else {
+                    this.feedData.push(...response.data);
+                    this.morePages = response.has_next_page;
+                    this.pageUrl = response.next_page;
+
+                    let hexCount = this.hexagons * this.rows;
+                    let feedCount = this.feedData.length;
+                    if(this.morePages && feedCount < hexCount) {
+                        this.getFeedPage();
+                    }
+                }
+            },
+            error: function(error) {
+                console.log('error', error);
+            }
+        });
     }
 
     /**
@@ -198,6 +245,15 @@ export class HexWall {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    /**
+     * Initialized hexagon wall.
+     */
+    initHexWall() : void {
+        this.calcHexagons();
+        this.drawHexagons();
+        window.setTimeout(this.getFeed.bind(this), 4000);
     }
 
     /**
@@ -247,6 +303,8 @@ export class HexWall {
         let feedEle: FeedItem = this.feedData[index];
         let author: any = JSON.parse(feedEle.author);
         hexEle.css('background-image', `url(${feedEle.image})`);
+        hexEle.attr('data-content-id', index);
+        hexEle.click({ feedEle: index, that: this }, this.featureHex);
         if(author) {
             if(author.username) {
                 nameEle.text(`@${author.username}`);
@@ -283,6 +341,7 @@ export class HexWall {
         let hexEle = $('#hex-'+num+'-in');
         let nameEle = $('#hex-'+num+'-in .hex-name');
         hexEle.css('background-image', '');
+        hexEle.off('click');
         hexEle.addClass('hex-fade-in');
         nameEle.text('');
         window.setTimeout(this.cycle.bind(this), 800);
