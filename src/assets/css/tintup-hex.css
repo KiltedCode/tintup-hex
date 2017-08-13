@@ -133,12 +133,17 @@
 .hex-name {
     color: white;
     display: none;
+    font-size: 16px;
     font-weight: bold;
     text-align: center;
     position: absolute;
     text-shadow: 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 7px #FFF, 0 0 7px #FFF, 0 0 7px #FFF, 0 0 7px #FFF;
     top: 67%;
     width: 100%;
+}
+
+.hex--sm .hex-name {
+    font-size: 12px;
 }
 
 .tu-hex-in2:hover .hex-name {
@@ -150,8 +155,18 @@
     height: 200px;
     margin: 9px 3px 0px -223px;
 }
+
 .tu-hex--side:nth-child(even) {
     margin-bottom: -105px;
+}
+
+.tu-hex--side.hex--sm {
+    width: 200px;
+    height: 100px;
+    margin: 4px 1px 0px -111px;
+}
+.tu-hex--side:nth-child(even).hex--sm {
+    margin-bottom: -52px;
 }
 
 /* future for alternate rotation */

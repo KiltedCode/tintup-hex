@@ -11,6 +11,7 @@ export class HexWall {
     private feedData: FeedItem[];
     private fillAmount: number = .2;
     private hexagons: number;
+    private hexSize: string;
     private morePages: boolean;
     private pageUrl: string;
     private primaryColor: string;
@@ -31,6 +32,7 @@ export class HexWall {
         this.allowLinking = config.allowLinking != null ? config.allowLinking : true;
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
+        this.hexSize = config.hexSize || 'md';
         this.primaryColor = config.primaryColor || '#AA4839';
         this.secondaryColor = config.secondaryColor || '#AA7239';
         this.tertiaryColor = config.tertiaryColor || '#8F305B';
@@ -95,13 +97,14 @@ export class HexWall {
         
         /* calculate # hexagons needed */
         /* calc length of side of hexagon */
-        let hexEdge = 200 / Math.sqrt(3);
+        let size = this.hexSize == 'sm' ? 100 : 200;
+        let hexEdge = size / Math.sqrt(3);
         hexEdge -= 10; /* subtract padding between hexagons */
         /* calc number of hexagons to fill */
         this.hexagons = Math.ceil(((width / hexEdge) / 3) * 2);
 
         /* calculate # rows needed */
-        this.rows = Math.round(height / (200 * .75) );
+        this.rows = Math.round(height / (size * .75) );
     }
 
     /**
@@ -131,7 +134,7 @@ export class HexWall {
             let row = '<div class="tu-hex-row">';
             for(let h = 0; h < this.hexagons; h++) {
                 let colorIndex = this.getRandomInt(0, this.colors.length);
-                row += `<div id="hex-${hex}" class="tu-hex tu-hex--side"><div class="tu-hex-in1"><div id="hex-${hex}-in" class="tu-hex-in2" style="background-color:${this.colors[colorIndex]}"><div class="hex-name"></div></div></div></div>`;
+                row += `<div id="hex-${hex}" class="tu-hex tu-hex--side hex--${this.hexSize}"><div class="tu-hex-in1"><div id="hex-${hex}-in" class="tu-hex-in2" style="background-color:${this.colors[colorIndex]}"><div class="hex-name"></div></div></div></div>`;
                 hex++;
             }
             row += '</div>';
