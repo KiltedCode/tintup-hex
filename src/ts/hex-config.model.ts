@@ -4,6 +4,7 @@ export interface HexConfig {
 
     allowLinking?: boolean;
     bgColor?: string;
+    fillAmount?: number;
     hexSize?: string;
     primaryColor?: string;
     secondaryColor?: string;

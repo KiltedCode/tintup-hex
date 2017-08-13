@@ -6,10 +6,11 @@ import { HexConfig } from './ts/hex-config.model';
 export class HexWall {
     private allowLinking: boolean;
     private apiKey: string;
+    private bgColor: string;
     private colors: string[];
     private feedName: string;
     private feedData: FeedItem[];
-    private fillAmount: number = .2;
+    private fillAmount: number;
     private hexagons: number;
     private hexSize: string;
     private morePages: boolean;
@@ -32,7 +33,12 @@ export class HexWall {
         this.allowLinking = config.allowLinking != null ? config.allowLinking : true;
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
-        this.hexSize = config.hexSize || 'md';
+        this.fillAmount = config.fillAmount || .2;
+        if(this.fillAmount > 1) {
+            this.fillAmount = 1;
+        }
+        this.hexSize = config.hexSize || 'lg';
+        this.bgColor = config.bgColor || '#383838';
         this.primaryColor = config.primaryColor || '#AA4839';
         this.secondaryColor = config.secondaryColor || '#AA7239';
         this.tertiaryColor = config.tertiaryColor || '#8F305B';
@@ -97,7 +103,12 @@ export class HexWall {
         
         /* calculate # hexagons needed */
         /* calc length of side of hexagon */
-        let size = this.hexSize == 'sm' ? 100 : 200;
+        let size = 200;
+        if(this.hexSize == 'md') {
+            size = 100;
+        } else if(this.hexSize == 'sm') {
+            size = 50;
+        }
         let hexEdge = size / Math.sqrt(3);
         hexEdge -= 10; /* subtract padding between hexagons */
         /* calc number of hexagons to fill */
@@ -129,7 +140,7 @@ export class HexWall {
         this.wrapper.empty();
         let hex = 0;
         let hexCount = this.hexagons * this.rows;
-        let wall = '<div class="tu-hex-wall"><div class="tu-hex-feature--wrapper"><div class="tu-hex-feature--content"><div class="tu-hex-feature--close">x</div><img class="tu-hex-feature-img" /><div class="tu-hex-feature--desc"></div></div></div>';
+        let wall = `<div class="tu-hex-wall" style="background-color: ${this.bgColor}"><div class="tu-hex-feature--wrapper"><div class="tu-hex-feature--content"><div class="tu-hex-feature--close">x</div><img class="tu-hex-feature-img" /><div class="tu-hex-feature--desc"></div></div></div>`;
         for(let r = 0; r < this.rows; r++) {
             let row = '<div class="tu-hex-row">';
             for(let h = 0; h < this.hexagons; h++) {
@@ -197,7 +208,9 @@ export class HexWall {
      */
     getFeed(): void {
         if(this.apiKey && this.feedName) {
-            let url = `https://api.tintup.com/v1/feed/${this.feedName}?api_token=${this.apiKey}&count=30&select=image_only`;
+            let active = Math.ceil(this.hexagons * this.rows * this.fillAmount);
+            let count = active > 30 ? active : 30;
+            let url = `https://api.tintup.com/v1/feed/${this.feedName}?api_token=${this.apiKey}&count=${count}&select=image_only`;
             $.ajax({
                 url: url,
                 jsonp: 'callback',
@@ -206,7 +219,6 @@ export class HexWall {
                     if(response.error) {
                         console.log(response.error);
                     } else {
-                        console.log('response', response);
                         this.feedData = response.data;
                         this.morePages = response.has_next_page;
                         this.pageUrl = response.next_page;
@@ -291,8 +303,21 @@ export class HexWall {
         let feedCount = this.feedData.length;
         let active = Math.ceil(hexCount * this.fillAmount);
         let i = 0;
+        let initialTimeout = 2000;
+        if(active > 36) {
+            initialTimeout = 125;
+        } else if(active > 27) {
+            initialTimeout = 250;
+        } else if(active > 18) {
+            initialTimeout = 500;
+        }else if(active > 9) {
+            initialTimeout = 1000;
+        }
         while(this.showHexIndex < active) {
-            window.setTimeout(this.step1.bind(this), 2000 * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex);
+            if(this.showHexIndex > this.feedData.length) {
+                break;
+            }
+            window.setTimeout(this.step1.bind(this), initialTimeout * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex);
             this.showHexIndex++;
             this.showImageIndex++;
         }

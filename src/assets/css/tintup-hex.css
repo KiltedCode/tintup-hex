@@ -142,8 +142,12 @@
     width: 100%;
 }
 
-.hex--sm .hex-name {
+.hex--md .hex-name {
     font-size: 12px;
+}
+
+.hex--sm .hex-name {
+    font-size: 8px;
 }
 
 .tu-hex-in2:hover .hex-name {
@@ -160,13 +164,31 @@
     margin-bottom: -105px;
 }
 
-.tu-hex--side.hex--sm {
+.tu-hex--side.hex--lg {
+    width: 400px;
+    height: 200px;
+    margin: 9px 3px 0px -223px;
+}
+.tu-hex--side:nth-child(even).hex--lg {
+    margin-bottom: -105px;
+}
+
+.tu-hex--side.hex--md {
     width: 200px;
     height: 100px;
     margin: 4px 1px 0px -111px;
 }
-.tu-hex--side:nth-child(even).hex--sm {
+.tu-hex--side:nth-child(even).hex--md {
     margin-bottom: -52px;
+}
+
+.tu-hex--side.hex--sm {
+    width: 100px;
+    height: 50px;
+    margin: 2px 0px 0px -55px;
+}
+.tu-hex--side:nth-child(even).hex--sm {
+    margin-bottom: -26px;
 }
 
 /* future for alternate rotation */
