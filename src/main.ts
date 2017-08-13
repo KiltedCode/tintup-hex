@@ -4,14 +4,18 @@ import { HexConfig } from './ts/hex-config.model';
 
 export class HexWall {
     private apiKey: string;
+    private colors: string[];
     private feedName: string;
     private feedData: FeedItem[];
     private fillAmount: number = .2;
     private hexagons: number;
+    private primaryColor: string;
     private randomArray: number[];
     private rows: number;
+    private secondaryColor: string;
     private showHexIndex: number;
     private showImageIndex: number;
+    private tertiaryColor: string;
     private wrapper: any;
 
     /**
@@ -21,16 +25,51 @@ export class HexWall {
     constructor(config: HexConfig) {
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
+        this.primaryColor = config.primaryColor || '#AA4839';
+        this.secondaryColor = config.secondaryColor || '#AA7239';
+        this.tertiaryColor = config.tertiaryColor || '#8F305B';
+        /* sets up colors for hexagons
+            constructs so primary has highest probability */
+        this.colors = [
+            this.primaryColor, 
+            this.primaryColor,  
+            this.primaryColor,
+            this.brightenColor(this.primaryColor, .15),
+            this.brightenColor(this.primaryColor, -.15), 
+            this.brightenColor(this.primaryColor, -.25), 
+            this.secondaryColor, 
+            this.secondaryColor, 
+            this.brightenColor(this.secondaryColor, .15),
+            this.brightenColor(this.secondaryColor, -.2), 
+            this.tertiaryColor,
+            this.brightenColor(this.tertiaryColor, -.2)
+        ];
     }
 
     /**
-     * Initialized hexagon wall.
+     * Helper function to brighten hex color.
+     * Negative lum will darken image.
+     * @param hex hexadecimal representation of a color to be adjusted.
+     * @param lum luminosity to change the color by
      */
-    initHexWall() : void {
-        this.calcHexagons();
-        this.drawHexagons();
-        window.setTimeout(this.getFeed.bind(this), 4000);
-    }
+    brightenColor(hex: string, lum: number) {
+        /* validate hex */
+        hex = String(hex).replace(/[^0-9a-f]/gi, '');
+        if(hex.length < 6) {
+          hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+        }
+        lum = lum || 0;
+      
+        /* convert to decimal and change */
+        var rgb = "#", c, i;
+        for (i = 0; i < 3; i++) {
+          c = parseInt(hex.substr(i*2,2), 16);
+          c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+          rgb += ("00"+c).substr(c.length);
+        }
+      
+        return rgb;
+      }
 
     /**
      * Calculates numbers of hexagons and rows needed.
@@ -77,7 +116,8 @@ export class HexWall {
         for(let r = 0; r < this.rows; r++) {
             let row = '<div class="tu-hex-row">';
             for(let h = 0; h < this.hexagons; h++) {
-                row += `<div id="hex-${hex}" class="tu-hex tu-hex--side"><div class="tu-hex-in1"><div id="hex-${hex}-in" class="tu-hex-in2"><div class="hex-name"></div></div></div></div>`;
+                let colorIndex = this.getRandomInt(0, this.colors.length);
+                row += `<div id="hex-${hex}" class="tu-hex tu-hex--side"><div class="tu-hex-in1"><div id="hex-${hex}-in" class="tu-hex-in2" style="background-color:${this.colors[colorIndex]}"><div class="hex-name"></div></div></div></div>`;
                 hex++;
             }
             row += '</div>';
@@ -124,6 +164,7 @@ export class HexWall {
                         let hexCount = this.hexagons * this.rows;
                         let feedCount = this.feedData.length;
                         this.startImages();
+
                         // TODO: Next page logic
                     }
                 },
@@ -135,6 +176,28 @@ export class HexWall {
         } else {
             // TODO: error message
         }
+    }
+
+    /**
+     * Initialized hexagon wall.
+     */
+    initHexWall() : void {
+        this.calcHexagons();
+        this.drawHexagons();
+        window.setTimeout(this.getFeed.bind(this), 4000);
+    }
+
+    /**
+     * Helper function to get random integer.
+     * Based on MDN snippet.
+     * @param min minimum value, inclusive.
+     * @param max maximum value, exclusive.
+     * @return {number} random integer.
+     */
+    getRandomInt(min: number, max: number): number {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 
     /**
