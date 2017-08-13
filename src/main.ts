@@ -4,6 +4,7 @@ import { FeedItem } from './ts/feed-item.model';
 import { HexConfig } from './ts/hex-config.model';
 
 export class HexWall {
+    private allowLinking: boolean;
     private apiKey: string;
     private colors: string[];
     private feedName: string;
@@ -27,6 +28,7 @@ export class HexWall {
      */
     constructor(config: HexConfig) {
         /* set values from config, with defaults */
+        this.allowLinking = config.allowLinking != null ? config.allowLinking : true;
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
         this.primaryColor = config.primaryColor || '#AA4839';
@@ -137,7 +139,11 @@ export class HexWall {
         }
         wall += '</div>';
         this.wrapper.append(wall);
-        $('.tu-hex-feature--close').click(function(){ $('.tu-hex-feature--wrapper').css('display', 'none'); });
+        $('.tu-hex-feature--close').click(function(){ 
+            let wrapperEle = $('.tu-hex-feature--wrapper');
+            wrapperEle.css('display', 'none');
+            wrapperEle.find('img').off('click');
+        });
         this.randomArray = [];
         this.randomArray.length = hexCount;
         for(let i = 0; i < hexCount; i++) {
@@ -166,6 +172,18 @@ export class HexWall {
         let featureEle = $('.tu-hex-feature--wrapper');
         let feedEle: FeedItem = event.data.that.feedData[event.data.feedEle];
         let imgEle = featureEle.find('img').attr('src', feedEle.original_image).attr('alt', 'Social Image');
+        console.log('linking', event.data.that.allowLinking);
+        if(event.data.that.allowLinking) {
+            let url = feedEle.url;
+            if(url && url != '') {
+                console.log('url');
+                imgEle.click(function() { window.open(url, '_blank'); });
+                imgEle.addClass('clickable').attr('title', 'Click for original post');
+            } else {
+                console.log('nothing');
+                imgEle.removeClass('clickable').attr('title', null);
+            }
+        }
         featureEle.find('.tu-hex-feature--desc').text(feedEle.title);
         featureEle.css('display', 'flex');
     }
