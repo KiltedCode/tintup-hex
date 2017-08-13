@@ -154,6 +154,7 @@
     margin-bottom: -105px;
 }
 
+/* future for alternate rotation */
 .tu-hex--point {
     width: 200px;
     height: 400px;
@@ -162,25 +163,4 @@
 
 .clickable {
     cursor: pointer;
-}
-
-
-/* for jjenzz/jquery.ellipsis */
-.ellip {
-    display: block;
-    height: 100%;
-}
-
-.ellip-line {
-    display: inline-block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    word-wrap: normal;
-    max-width: 100%;
-}
-
-.ellip,
-.ellip-line {
-    position: relative;
-    overflow: hidden;
 }
