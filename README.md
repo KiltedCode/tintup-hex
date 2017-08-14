@@ -42,17 +42,18 @@ hexWall.initHexWall();
 
 When creating a HexWall object, the constructor takes a configuration object. The object requires an API key and a feed name. All other parameters are options.
 
-| Parameter        | Type    | Default     | Description  |
-| ---------------- | ------- |-------------| -----|
-| `apiKey`         | string  | none        | API key for use with the TINT API. |
-| `feedName`       | string  | none        | The name of the feed to display. |
-| `allowLinking`   | boolean | `true`      | Should linking to original posts be allowed, in the feature view? Link will be opened in a new tab. |
-| `bgColor`        | string  | `'#383838'` | The background color of the hexagon wall. |
-| `fillAmount`     | number  | `.2`        | The amount of hexagons that should be filled with images concurrently. This is a decimal representation of a percentage. It should be greater than 0 and less than or equal to 1. |
-| `hexSize`        | string  | `lg'`       | The size of the hexagons to be displayed on the screen. The valid options are `'sm'`, `'md'`, and `'lg'`. |
-| `primaryColor`   | string  | `'#AA4839'` | The primary color to be used as a background color for a hexagon. This color and three variations of it will be used with most probablity. |
-| `secondaryColor` | string  | `'#AA7239'` | The secondary color to be used as a background color for a hexagon. This color and two variations of it will be used with second most probablity. |
-| `tertiaryColor`  | string  | `'#8F305B'` | The third color to be used as a background color for a hexagon. This color and one variations of it will be used with the least probablity. |
+| Parameter          | Type    | Default     | Description  |
+| ------------------ | ------- |-------------| -----|
+| `apiKey`           | string  | none        | API key for use with the TINT API. |
+| `feedName`         | string  | none        | The name of the feed to display. |
+| `allowInteraction` | boolean | `true`      | Can hexagons be interacted with? If false, they cannot be clicked to show feature view. |
+| `allowLinking`     | boolean | `true`      | Should linking to original posts be allowed, in the feature view? Link will be opened in a new tab. |
+| `bgColor`          | string  | `'#383838'` | The background color of the hexagon wall. |
+| `fillAmount`       | number  | `.2`        | The amount of hexagons that should be filled with images concurrently. This is a decimal representation of a percentage. It should be greater than 0 and less than or equal to 1. |
+| `hexSize`          | string  | `lg'`       | The size of the hexagons to be displayed on the screen. The valid options are `'sm'`, `'md'`, and `'lg'`. |
+| `primaryColor`     | string  | `'#AA4839'` | The primary color to be used as a background color for a hexagon. This color and three variations of it will be used with most probablity. |
+| `secondaryColor`   | string  | `'#AA7239'` | The secondary color to be used as a background color for a hexagon. This color and two variations of it will be used with second most probablity. |
+| `tertiaryColor`    | string  | `'#8F305B'` | The third color to be used as a background color for a hexagon. This color and one variations of it will be used with the least probablity. |
 
 ## Implementation Notes
 

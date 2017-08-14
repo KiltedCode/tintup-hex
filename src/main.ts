@@ -4,6 +4,7 @@ import { FeedItem } from './ts/feed-item.model';
 import { HexConfig } from './ts/hex-config.model';
 
 export class HexWall {
+    private allowInteraction: boolean;
     private allowLinking: boolean;
     private apiKey: string;
     private bgColor: string;
@@ -32,6 +33,7 @@ export class HexWall {
     constructor(config: HexConfig) {
         /* set values from config, with defaults */
         this.allowLinking = config.allowLinking != null ? config.allowLinking : true;
+        this.allowInteraction = config.allowInteraction != null ? config.allowInteraction : true;
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
         this.fillAmount = config.fillAmount || .2;
@@ -356,7 +358,9 @@ export class HexWall {
         let author: any = JSON.parse(feedEle.author);
         hexEle.css('background-image', `url(${feedEle.image})`);
         hexEle.attr('data-content-id', index);
-        hexEle.click({ feedEle: index, that: this }, this.featureHex);
+        if(this.allowInteraction) {
+            hexEle.click({ feedEle: index, that: this }, this.featureHex);
+        }
         if(author) {
             if(author.username) {
                 nameEle.text(`@${author.username}`);
@@ -365,7 +369,8 @@ export class HexWall {
             }
             
         }
-        hexEle.addClass('hex-fade-in--slow clickable');
+        let classes = this.allowInteraction ? 'hex-fade-in--slow clickable' : 'hex-fade-in--slow';
+        hexEle.addClass(classes);
         window.setTimeout(this.step3.bind(this), 15000, num, index);
     }
 
