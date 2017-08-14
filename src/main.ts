@@ -13,6 +13,7 @@ export class HexWall {
     private fillAmount: number;
     private hexagons: number;
     private hexSize: string;
+    private featureHeight: any;
     private morePages: boolean;
     private pageUrl: string;
     private primaryColor: string;
@@ -44,6 +45,7 @@ export class HexWall {
         this.tertiaryColor = config.tertiaryColor || '#8F305B';
 
         /* set nonconfigurable base values */
+        this.featureHeight = { 'image': '', 'desc': ''};
         this.morePages = false;
         this.pageUrl = '';
 
@@ -116,6 +118,10 @@ export class HexWall {
 
         /* calculate # rows needed */
         this.rows = Math.round(height / (size * .75) );
+
+        /* calculate feature heights */
+        this.featureHeight.img = Math.floor((height - 40) * .75) + 'px';
+        this.featureHeight.desc = Math.floor((height - 40) * .25) + 'px';
     }
 
     /**
@@ -140,7 +146,7 @@ export class HexWall {
         this.wrapper.empty();
         let hex = 0;
         let hexCount = this.hexagons * this.rows;
-        let wall = `<div class="tu-hex-wall" style="background-color: ${this.bgColor}"><div class="tu-hex-feature--wrapper"><div class="tu-hex-feature--content"><div class="tu-hex-feature--close">x</div><img class="tu-hex-feature-img" /><div class="tu-hex-feature--desc"></div></div></div>`;
+        let wall = `<div class="tu-hex-wall" style="background-color: ${this.bgColor}"><div class="tu-hex-feature--wrapper"><div class="tu-hex-feature--content"><div class="tu-hex-feature--close">x</div><img class="tu-hex-feature-img" style="max-height:${this.featureHeight.img}" /><div class="tu-hex-feature--desc" style="max-height:${this.featureHeight.desc}"></div></div></div>`;
         for(let r = 0; r < this.rows; r++) {
             let row = '<div class="tu-hex-row">';
             for(let h = 0; h < this.hexagons; h++) {
