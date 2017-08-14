@@ -1,5 +1,9 @@
 .tu-hex-wall-wrapper {
+    box-sizing: content-box;
+    color: '#333333';
     font-family: Lato, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: normal;
     height:100%;
     overflow: hidden;
     width: 100%;
@@ -16,7 +20,6 @@
     background: rgba(0, 0, 0, .75);
     display: none;
     height: calc(100% - 400px);
-    /* margin-left: -200px; */
     padding-bottom: 10px;
     padding-top: 120px;
     position: absolute;
@@ -39,14 +42,16 @@
     background: rgba(255, 255, 255, .5);
     border-radius: 15px;
     border: 3px solid #000000;
+    box-sizing: content-box;
     cursor: pointer;
+    font-size: 16px;
     font-weight: bold;
     height: 20px;
+    line-height: normal;
     position: absolute;
     right: 0;
     top: 0;
     width: 20px;
-
 }
 
 .tu-hex-feature-img--wrapper {
@@ -60,6 +65,9 @@
 
 .tu-hex-feature--desc {
     background-color: rgba(255, 255, 255, .5);
+    box-sizing: content-box;
+    font-size: 16px;
+    line-height: normal;
     margin: 1em auto;
     max-height: 25%;
     overflow-y: auto;
@@ -67,6 +75,7 @@
 }
 
 .tu-hex-row {
+    line-height: normal;
     padding-left: 20px;
     white-space: nowrap;
 }
