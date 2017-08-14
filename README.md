@@ -53,3 +53,13 @@ When creating a HexWall object, the constructor takes a configuration object. Th
 | `primaryColor`   | string  | `'#AA4839'` | The primary color to be used as a background color for a hexagon. This color and three variations of it will be used with most probablity. |
 | `secondaryColor` | string  | `'#AA7239'` | The secondary color to be used as a background color for a hexagon. This color and two variations of it will be used with second most probablity. |
 | `tertiaryColor`  | string  | `'#8F305B'` | The third color to be used as a background color for a hexagon. This color and one variations of it will be used with the least probablity. |
+
+## Implementation Notes
+
+The current implementation is purely CSS based for the hexagons, with JQuery for the dynamic adding of tags needed to draw the hexagons. The goal of using CSS only for the drawing to be light weight. The script code is written in Typescript, with an ES5 target for compatibility purposes. 
+
+### Future Implementation
+
+The CSS only route has limitations. I makes it more susceptible to cross-browser issues and to side effects when embedding (though in limited testing it hasn't shown issues). It also ends up with some hexagons off screen to ensure fill of the visible screen at all sizes. 
+
+A future impementation could be done with d3 / SVG to handle creating and manipulating the hexagons. This could provide more precise logic for filling the screen with hexagons with less overflow off the visible edges of screen. The main logic of how everything is managed and cycled could remain, as well as the steps and timeouts.
