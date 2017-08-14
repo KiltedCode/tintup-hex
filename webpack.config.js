@@ -1,6 +1,3 @@
-
-// var $ = require('jquery');
-// var path = require('path');
 var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
