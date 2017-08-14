@@ -29,6 +29,7 @@ module.exports = {
                 from: '**/*', 
                 to: 'dist/assets' 
             }
-        ])
+        ]),
+        new webpack.optimize.UglifyJsPlugin()
     ]
 }
