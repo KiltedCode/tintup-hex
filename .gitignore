@@ -2,6 +2,9 @@
 /dist
 /tmp
 
+# local examples
+/azure-example
+
 # dependencies
 /node_modules
 
