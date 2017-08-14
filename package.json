@@ -4,8 +4,7 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "build": "webpack --config webpack.config.js",
-        "build-ex": "webpack --config webpack.config.js && cp example/index.html dist/index.html"
+        "build": "webpack --config webpack.config.js"
     },
     "dependencies": {
         "jquery": "^3.2.1"
