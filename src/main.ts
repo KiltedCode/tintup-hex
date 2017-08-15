@@ -7,6 +7,7 @@ export class HexWall {
     private allowInteraction: boolean;
     private allowLinking: boolean;
     private apiKey: string;
+    private autoRefresh: boolean;
     private bgColor: string;
     private colors: string[];
     private feedName: string;
@@ -19,6 +20,8 @@ export class HexWall {
     private pageUrl: string;
     private primaryColor: string;
     private randomArray: number[];
+    private refreshId: number;
+    private refreshInterval: number;
     private rows: number;
     private secondaryColor: string;
     private showHexIndex: number;
@@ -34,6 +37,7 @@ export class HexWall {
         /* set values from config, with defaults */
         this.allowLinking = config.allowLinking != null ? config.allowLinking : true;
         this.allowInteraction = config.allowInteraction != null ? config.allowInteraction : true;
+        this.autoRefresh = config.autoRefresh != null ? config.autoRefresh : true;
         this.apiKey = config.apiKey;
         this.feedName = config.feedName;
         this.fillAmount = config.fillAmount || .2;
@@ -41,6 +45,7 @@ export class HexWall {
             this.fillAmount = 1;
         }
         this.hexSize = config.hexSize || 'lg';
+        this.refreshInterval = config.refreshInterval || 900000;
         this.bgColor = config.bgColor || '#383838';
         this.primaryColor = config.primaryColor || '#AA4839';
         this.secondaryColor = config.secondaryColor || '#AA7239';
@@ -50,6 +55,7 @@ export class HexWall {
         this.featureHeight = { 'image': '', 'desc': ''};
         this.morePages = false;
         this.pageUrl = '';
+        this.refreshId = 0;
 
         /* sets up colors for hexagons
             constructs so primary has highest probability */
@@ -131,11 +137,14 @@ export class HexWall {
      * Starts steps to show image, updates indicies.
      */
     cycle(): void {
-        this.step1(this.randomArray[this.showHexIndex], this.showImageIndex);
+        this.step1(this.randomArray[this.showHexIndex], this.showImageIndex, this.refreshId);
         this.showHexIndex = (this.showHexIndex + 1) % (this.hexagons * this.rows);
         this.showImageIndex = (this.showImageIndex + 1) % this.feedData.length;
         /* if nearing feed size, get another page */
-        if(this.morePages && (this.feedData.length - this.showImageIndex < 5)) {
+        let active = Math.ceil(this.hexagons * this.rows * this.fillAmount);
+        let count = active > 30 ? active : 30;
+        let maxCache = Math.max(count * 3, 300);
+        if(this.morePages && this.feedData.length < maxCache && (this.feedData.length - this.showImageIndex < 5)) {
             this.getFeedPage();
         }
     }
@@ -194,15 +203,12 @@ export class HexWall {
         let featureEle = $('.tu-hex-feature--wrapper');
         let feedEle: FeedItem = event.data.that.feedData[event.data.feedEle];
         let imgEle = featureEle.find('img').attr('src', feedEle.original_image).attr('alt', 'Social Image');
-        console.log('linking', event.data.that.allowLinking);
         if(event.data.that.allowLinking) {
             let url = feedEle.url;
             if(url && url != '') {
-                console.log('url');
                 imgEle.click(function() { window.open(url, '_blank'); });
                 imgEle.addClass('clickable').attr('title', 'Click for original post');
             } else {
-                console.log('nothing');
                 imgEle.removeClass('clickable').attr('title', null);
             }
         }
@@ -245,34 +251,40 @@ export class HexWall {
             });
 
         } else {
-            // TODO: error message
+            console.log('Configuration missing.');
         }
     }
 
+    /**
+     * Gets page feed data from TINTUP API.
+     * Uses pageUrl from previous API call.
+     */
     getFeedPage(): void {
-        $.ajax({
-            url: this.pageUrl,
-            jsonp: 'callback',
-            dataType: 'jsonp',
-            success: (response) => {
-                if(response.error) {
-                    console.log(response.error);
-                } else {
-                    this.feedData.push(...response.data);
-                    this.morePages = response.has_next_page;
-                    this.pageUrl = response.next_page;
+        if(this.pageUrl) {
+            $.ajax({
+                url: this.pageUrl,
+                jsonp: 'callback',
+                dataType: 'jsonp',
+                success: (response) => {
+                    if(response.error) {
+                        console.log(response.error);
+                    } else {
+                        this.feedData.push(...response.data);
+                        this.morePages = response.has_next_page;
+                        this.pageUrl = response.next_page;
 
-                    let hexCount = this.hexagons * this.rows;
-                    let feedCount = this.feedData.length;
-                    if(this.morePages && feedCount < hexCount) {
-                        this.getFeedPage();
+                        let hexCount = this.hexagons * this.rows;
+                        let feedCount = this.feedData.length;
+                        if(this.morePages && feedCount < hexCount) {
+                            this.getFeedPage();
+                        }
                     }
+                },
+                error: function(error) {
+                    console.log('error', error);
                 }
-            },
-            error: function(error) {
-                console.log('error', error);
-            }
-        });
+            });
+        }
     }
 
     /**
@@ -289,12 +301,27 @@ export class HexWall {
     }
 
     /**
-     * Initialized hexagon wall.
+     * Initializes hexagon wall.
      */
     initHexWall() : void {
         this.calcHexagons();
         this.drawHexagons();
         window.setTimeout(this.getFeed.bind(this), 4000);
+        if(this.autoRefresh) {
+            window.setTimeout(this.refresh.bind(this), this.refreshInterval);
+        }
+    }
+
+    /**
+     * Auto refreshes feed.
+     * Updates refreshId to protect in progress steps on old feed.
+     * Gets feed data fresh.
+     */
+    refresh(): void {
+        this.refreshId = (this.refreshId + 1) % 5;
+        this.randomArray.sort(function() { return 0.5 - Math.random(); });
+        window.setTimeout(this.getFeed.bind(this), 4000);
+        window.setTimeout(this.refresh.bind(this), this.refreshInterval);
     }
 
     /**
@@ -325,7 +352,7 @@ export class HexWall {
             if(this.showHexIndex > this.feedData.length) {
                 break;
             }
-            window.setTimeout(this.step1.bind(this), initialTimeout * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex);
+            window.setTimeout(this.step1.bind(this), initialTimeout * this.showHexIndex, this.randomArray[this.showHexIndex], this.showImageIndex, this.refreshId);
             this.showHexIndex++;
             this.showImageIndex++;
         }
@@ -337,10 +364,11 @@ export class HexWall {
      * Sets timeout for step 2.
      * @param num number of hexagon used to select from dom.
      * @param index index for image.
+     * @param refreshId id for mapping iteration to protect refreshes during steps.
      */
-    step1(num: number, index: number): void {
+    step1(num: number, index: number, refreshId: number): void {
         $('#hex-'+num+'-in').removeClass('hex-fade-in');
-        window.setTimeout(this.step2.bind(this), 800, num, index);
+        window.setTimeout(this.step2.bind(this), 800, num, index, refreshId);
     }
 
     /**
@@ -350,28 +378,35 @@ export class HexWall {
      * Sets timeout for step 3.
      * @param num number of hexagon used to select from dom.
      * @param index index for image.
+     * @param refreshId id for mapping iteration to protect refreshes during steps.
      */
-    step2(num: number, index: number): void {
+    step2(num: number, index: number, refreshId: number): void {
         let hexEle = $('#hex-'+num+'-in');
         let nameEle = $('#hex-'+num+'-in .hex-name');
-        let feedEle: FeedItem = this.feedData[index];
-        let author: any = JSON.parse(feedEle.author);
-        hexEle.css('background-image', `url(${feedEle.image})`);
-        hexEle.attr('data-content-id', index);
-        if(this.allowInteraction) {
-            hexEle.click({ feedEle: index, that: this }, this.featureHex);
-        }
-        if(author) {
-            if(author.username) {
-                nameEle.text(`@${author.username}`);
-            } else if(author.name) {
-                nameEle.text(author.name);
+        if(this.refreshId != refreshId) {
+            hexEle.addClass('hex-fade-in');
+        } else {
+            let feedEle: FeedItem = this.feedData[index];
+            if(feedEle) {
+                let author: any = JSON.parse(feedEle.author);
+                hexEle.css('background-image', `url(${feedEle.image})`);
+                hexEle.attr('data-content-id', index);
+                if(this.allowInteraction) {
+                    hexEle.click({ feedEle: index, that: this }, this.featureHex);
+                }
+                if(author) {
+                    if(author.username) {
+                        nameEle.text(`@${author.username}`);
+                    } else if(author.name) {
+                        nameEle.text(author.name);
+                    }
+                    
+                }
+                let classes = this.allowInteraction ? 'hex-fade-in--slow clickable' : 'hex-fade-in--slow';
+                hexEle.addClass(classes);
+                window.setTimeout(this.step3.bind(this), 15000, num, index, refreshId);
             }
-            
         }
-        let classes = this.allowInteraction ? 'hex-fade-in--slow clickable' : 'hex-fade-in--slow';
-        hexEle.addClass(classes);
-        window.setTimeout(this.step3.bind(this), 15000, num, index);
     }
 
     /**
@@ -380,10 +415,11 @@ export class HexWall {
      * Sets timeout for step 4.
      * @param num number of hexagon used to select from dom.
      * @param index index for image.
+     * @param refreshId id for mapping iteration to protect refreshes during steps.
      */
-    step3(num: number, index: number): void {
+    step3(num: number, index: number, refreshId: number): void {
         $('#hex-'+num+'-in').removeClass('hex-fade-in--slow clickable');
-        window.setTimeout(this.step4.bind(this), 800, num, index);
+        window.setTimeout(this.step4.bind(this), 800, num, index, refreshId);
     }
 
     /**
@@ -393,14 +429,17 @@ export class HexWall {
      * Sets timeout to start cycle for new image.
      * @param num number of hexagon used to select from dom.
      * @param index index for image.
+     * @param refreshId id for mapping iteration to protect refreshes during steps.
      */
-    step4(num: number, index: number): void {
+    step4(num: number, index: number, refreshId: number): void {
         let hexEle = $('#hex-'+num+'-in');
         let nameEle = $('#hex-'+num+'-in .hex-name');
         hexEle.css('background-image', '');
         hexEle.off('click');
         hexEle.addClass('hex-fade-in');
         nameEle.text('');
-        window.setTimeout(this.cycle.bind(this), 800);
+        if(this.refreshId == refreshId) {
+            window.setTimeout(this.cycle.bind(this), 800);
+        }
     }
 }

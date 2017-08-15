@@ -4,9 +4,11 @@ export interface HexConfig {
 
     allowInteraction?: boolean;
     allowLinking?: boolean;
+    autoRefresh?: boolean;
     bgColor?: string;
     fillAmount?: number;
     hexSize?: string;
+    refreshInterval?: number;
     primaryColor?: string;
     secondaryColor?: string;
     tertiaryColor?: string;
