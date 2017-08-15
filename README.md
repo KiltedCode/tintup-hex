@@ -61,8 +61,10 @@ When creating a HexWall object, the constructor takes a configuration object. Th
 
 The current implementation is purely CSS based for the hexagons, with JQuery for the dynamic adding of tags needed to draw the hexagons. The goal of using CSS only for the drawing to be light weight. The script code is written in Typescript, with an ES5 target for compatibility purposes. 
 
-### Future Implementation
+### Future Improvements
 
 The CSS only route has limitations. I makes it more susceptible to cross-browser issues and to side effects when embedding (though in limited testing it hasn't shown issues). It also ends up with some hexagons off screen to ensure fill of the visible screen at all sizes. 
 
 A future implementation could be done with d3 / SVG to handle creating and manipulating the hexagons. This could provide more precise logic for filling the screen with hexagons with less overflow off the visible edges of screen. The main logic of how everything is managed and cycled could remain, as well as the steps and timeouts.
+
+Currently, the code needs two improvements. It needs unit tests on the code. I haven't generally done TDD in practice, but I do feel JS unit test coverage is _very_ important. Using Typescript catches some of the errors you usually need as base cases in tests, but does not cover all areas. It is a good starting point to better code. Second, I want to add configuration validation, so that invalid configuration properties will be ignored instead of causing issues. Currently, it only use defaults when values are not provided, but does little to check if they are valid values. This configuration in production would be driven by the TINT UI, but is good in practice to create robust code.
