@@ -65,4 +65,4 @@ The current implementation is purely CSS based for the hexagons, with JQuery for
 
 The CSS only route has limitations. I makes it more susceptible to cross-browser issues and to side effects when embedding (though in limited testing it hasn't shown issues). It also ends up with some hexagons off screen to ensure fill of the visible screen at all sizes. 
 
-A future impementation could be done with d3 / SVG to handle creating and manipulating the hexagons. This could provide more precise logic for filling the screen with hexagons with less overflow off the visible edges of screen. The main logic of how everything is managed and cycled could remain, as well as the steps and timeouts.
+A future implementation could be done with d3 / SVG to handle creating and manipulating the hexagons. This could provide more precise logic for filling the screen with hexagons with less overflow off the visible edges of screen. The main logic of how everything is managed and cycled could remain, as well as the steps and timeouts.
